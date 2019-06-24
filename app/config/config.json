@@ -1,0 +1,8 @@
+{
+    "development": {
+        "database": "InterviewDB",
+        "host": "localhost",
+        "port": 27017
+    }
+  }
+  
