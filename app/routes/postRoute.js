@@ -6,6 +6,7 @@ const handleValidationError = require("../components/helpers/validation");
 
 // To create data
 router.post('/create', async(req, res) => {
+  const io          = req.app.get('io');
   let post          = new Post();
   post.title        = req.body.title;
   post.message      = req.body.message;
@@ -16,6 +17,7 @@ router.post('/create', async(req, res) => {
   if( isEmpty.status == false ){
     post.save((err, docs) => {
       if(!err){
+        io.emit('newTask');
         res.json({
           code: 200,
           message: "Success"
@@ -55,7 +57,7 @@ router.get('/list', (req, res) => {
         message: "Error in retrieving post list."
       });
     }   
-  }); 
+  }).sort({ _id: -1 }); 
 });
 
 // To display data dealing with id
@@ -80,12 +82,14 @@ router.post('/detail', function(req, res){
 
 // To update data
 router.post('/update', async function(req, res){
+  const io    = req.app.get('io');
   let isEmpty = await handleValidationError.isEmpty(req.body);
 
   if( isEmpty.status == false ){  
     req.body.status = "active";
     Post.updateOne( {_id: req.body.id}, req.body, (err, docs) => {
       if(!err){
+        io.emit('newTask');
         res.json({
           code: 200,
           message: "Success"
@@ -110,8 +114,10 @@ router.post('/update', async function(req, res){
 
 // To delete data
 router.post('/delete', function(req, res){
+  const io  = req.app.get('io');
   Post.updateOne( {_id: req.body.id}, {status: "inactive"}, (err, docs) => {
     if(!err){
+      io.emit('newTask');
       res.json({
         code: 200,
         message: "Success"
